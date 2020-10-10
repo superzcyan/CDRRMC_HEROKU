@@ -20,8 +20,8 @@ const registrationValidation = (data) => {
 			"string.min": `Password should be atleast 4 characters`,
 		}),
 		passwordCheck: Joi.string().required().messages({
-			"string.empty": `Confirm Password confirmation does not match.`
-		})
+			"string.empty": `Confirm Password confirmation does not match.`,
+		}),
 	});
 	return schema.validate(data, { abortEarly: false });
 };
@@ -42,9 +42,9 @@ const loginValidation = (data) => {
 //Evacuee Validation
 const evacueeValidation = (data) => {
 	const schema = Joi.object().keys({
-		familyNumber: Joi.number().required().messages({
+		/*familyNumber: Joi.number().required().messages({
 			"number.empty": `Family number is required`,
-		}),
+		}),*/
 		memberType: Joi.string().trim().required().messages({
 			"string.empty": `Member type is missing`,
 		}),
@@ -61,10 +61,10 @@ const evacueeValidation = (data) => {
 		birthday: Joi.string().required().messages({
 			"string.empty": `Birthday is required`,
 		}),
-		age: Joi.number().required().messages({
+		/*age: Joi.number().required().messages({
 			"number.base": `Age should be numeric`,
 			"number.empty": `Age is required`,
-		}),
+		}),*/
 		gender: Joi.string().trim().required().messages({
 			"string.empty": `Gender is required`,
 		}),

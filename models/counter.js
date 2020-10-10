@@ -1,9 +1,8 @@
 const mongoose = require("mongoose");
 const { string } = require("@hapi/joi");
-const familyNumberSchema = new mongoose.Schema({
+const counterSchema = new mongoose.Schema({
 	name: {
 		type: String,
-		default: "familyNumber",
 	},
 	count: {
 		type: Number,
@@ -11,4 +10,4 @@ const familyNumberSchema = new mongoose.Schema({
 		default: 0,
 	},
 });
-module.exports = mongoose.model("counters", familyNumberSchema);
+module.exports = mongoose.model("counters", counterSchema);

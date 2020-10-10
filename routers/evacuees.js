@@ -3,7 +3,7 @@ const moment = require("moment");
 const fileUpload = require("express-fileupload");
 const router = express.Router();
 const evacueesModel = require("../models/evacuees");
-const counterModel = require("../models/counters");
+const counterModel = require("../models/counter");
 const verify = require("../utils/verifyToken");
 const { checkRole } = require("../utils/checkRole");
 const { evacueeValidation } = require("../utils/validation");
@@ -36,9 +36,14 @@ router.get("/evacuees", (request, response) => {
 router.get("/familyNumber", verify, async (request, response) => {
 	try {
 		const familyNumber = await counterModel.find({ name: "familyNumber" });
+		console.log("familyNumber:", familyNumber);
 		response.status(200).json(familyNumber[0].count + 1); //Get key:value pair of json object
+
+		const evacueeNumber = await counterModel.find({ id: "evacueeNumber" });
+		console.log("evacueeNumber:", evacueeNumber[0].seq);
 	} catch (error) {
 		response.status(500).json({ error: error.message });
+		console.log(error);
 	}
 });
 
@@ -54,8 +59,12 @@ router.post("/", verify, checkRole(["admin"]), async (request, response) => {
 			error.push({ errorMsg: splitError });
 		});
 	}
+	//Find latest familyNumber
 
-	//Find latest evacueeNumber
+	const latestFamilyNumber = await counterModel.find({ name: "familyNumber" });
+	console.log(latestFamilyNumber);
+	const familyNumber = latestFamilyNumber[0].count + 1;
+
 	const latestEvacuee = await evacueesModel
 		.findOne()
 		.sort({ _id: -1 })
@@ -65,7 +74,7 @@ router.post("/", verify, checkRole(["admin"]), async (request, response) => {
 	//Compute age using birthday
 	const yearToday = new Date().getFullYear();
 	//Transform mongoose Date field to UTC using moment
-	const birthday = moment.utc(request.body.birthday);
+	const birthday = moment(request.body.birthday, "MM-DD-yyyy");
 	const birthYear = new Date(birthday).getFullYear();
 	const age = yearToday - birthYear;
 
@@ -73,7 +82,7 @@ router.post("/", verify, checkRole(["admin"]), async (request, response) => {
 	const imgName = request.body.firstName + "_" + evacueeNumber + ".jpg";
 
 	const newEvacuee = new evacueesModel({
-		familyNumber: request.body.familyNumber,
+		familyNumber: familyNumber,
 		memberType: request.body.memberType,
 		firstName: request.body.firstName,
 		middleName: request.body.middleName,
@@ -109,40 +118,56 @@ router.post("/", verify, checkRole(["admin"]), async (request, response) => {
 			console.log(newEvacuee.image);
 			fs.writeFileSync(path, base64Data, { encoding: "base64" });
 			const evacuee = await newEvacuee.save();
-			if (familyMembers.length !== 0) {
-				//Add Family member
-				familyMembers.forEach((x) => {
-					const membersModel = new evacueesModel({
-						familyNumber: x.familyNumber,
-						evacueeNumber: x.evacueeNumber,
-						memberType: x.memberType,
-						firstName: x.firstName,
-						middleName: x.middleName,
-						lastName: x.lastName,
-						birthday: x.birthday,
-						age: x.age,
-						gender: x.gender,
-						pregnant: x.pregnant,
-						address: x.address,
-						baranggay: x.baranggay,
-						municipality: x.municipality,
-						pwd: x.pwd,
-						contactNumber: x.contactNumber,
-						image: "default.jpg",
+			if (familyMembers.length > 0) {
+				try {
+					const latestFamilyNumber = await counterModel.find({
+						name: "familyNumber",
 					});
-					const member = membersModel.save();
-				});
+					console.log(latestFamilyNumber);
+					const familyNumber = latestFamilyNumber[0].count + 1;
+					//Add Family member
+					familyMembers.forEach((x) => {
+						//Compute age using birthday
+						const yearToday = new Date().getFullYear();
+						//Transform mongoose Date field to UTC using moment
+						const birthday = moment(x.birthday, "MM-DD-yyyy");
+						const birthYear = new Date(birthday).getFullYear();
+						const age = yearToday - birthYear;
+						const membersModel = new evacueesModel({
+							familyNumber: familyNumber,
+							evacueeNumber: x.evacueeNumber,
+							memberType: x.memberType,
+							firstName: x.firstName,
+							middleName: x.middleName,
+							lastName: x.lastName,
+							birthday: x.birthday,
+							age: age,
+							gender: x.gender,
+							pregnant: x.pregnant,
+							address: x.address,
+							baranggay: x.baranggay,
+							municipality: x.municipality,
+							pwd: x.pwd,
+							contactNumber: x.contactNumber,
+							image: "default.jpg",
+						});
+						const member = membersModel.save();
+					});
 
-				//Update numbers of family in counters collection
-				//Find familyNumber in mongo collections
-				const familyNumber = await counterModel.find({
-					name: "familyNumber",
-				});
-				const familyCount = familyNumber[0].count;
-				const filter = { name: "familyNumber" };
-				//add count to familyNumber
-				const update = { count: familyCount + 1 };
-				await counterModel.updateOne(filter, update);
+					//Update numbers of family in counters collection
+					//Find familyNumber in mongo collections
+					const famNumber = await counterModel.find({
+						name: "familyNumber",
+					});
+					const familyCount = famNumber[0].count;
+					const filter = { name: "familyNumber" };
+					//add count to familyNumber
+					const update = { count: familyCount + 1 };
+					await counterModel.updateOne(filter, update);
+					console.log("update:", update);
+				} catch (error) {
+					console.log("Error", error);
+				}
 			}
 			response.status(200).json("success");
 		}
