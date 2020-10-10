@@ -393,7 +393,8 @@ function Evacuees() {
 	const [firstName, setFirstName] = useState("");
 	const [middleName, setMiddleName] = useState("");
 	const [lastName, setLastName] = useState("");
-	const [birthday, setBirthday] = useState(moment().format("MM/DD/yyyy"));
+	const [birthday, setBirthday] = useState("12/20/2020");
+	console.log(birthday);
 	const [gender, setGender] = useState("");
 	const [pregnant, setPregnant] = useState(false);
 	const [age, setAge] = useState(null);
@@ -446,6 +447,7 @@ function Evacuees() {
 	}, [webcamRef, setImgSrc]);
 
 	const handleOpenAddModal = () => {
+		console.log(birthday);
 		setAddModal(true);
 		var url = window.apihost + "evacuees/familyNumber";
 		var token = sessionStorage.getItem("auth-token");
@@ -535,7 +537,7 @@ function Evacuees() {
 			.finally(function () {
 				// always executed
 			});
-	}, [evacueesData]);
+	}, []);
 
 	const handleAddMember = () => {
 		const data = {
@@ -649,6 +651,8 @@ function Evacuees() {
 	};
 
 	const handleSave = () => {
+		setBirthday(moment().format("MM/DD/yyyy"));
+		console.log(birthday);
 		setBtnSaveLoading(true);
 		var token = sessionStorage.getItem("auth-token");
 		var userData = sessionStorage.getItem("userData");
@@ -1461,9 +1465,9 @@ function Evacuees() {
 														id="date-picker-dialog"
 														fullWidth
 														placeholder="MM/DD/YYYY"
-														format="MM/dd/yyyy"
 														value={birthday}
 														onChange={(e) => setBirthday(e)}
+														format="MM/dd/yyyy"
 														KeyboardButtonProps={{
 															"aria-label": "change date",
 														}}
