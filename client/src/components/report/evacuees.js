@@ -394,7 +394,6 @@ function Evacuees() {
 	const [middleName, setMiddleName] = useState("");
 	const [lastName, setLastName] = useState("");
 	const [birthday, setBirthday] = useState(moment().format("MM/DD/yyyy"));
-	console.log(birthday);
 	const [gender, setGender] = useState("");
 	const [pregnant, setPregnant] = useState(false);
 	const [age, setAge] = useState(null);
@@ -537,7 +536,7 @@ function Evacuees() {
 			.finally(function () {
 				// always executed
 			});
-	}, []);
+	}, [evacueesData]);
 
 	const handleAddMember = () => {
 		const data = {

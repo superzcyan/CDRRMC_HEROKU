@@ -36,14 +36,9 @@ router.get("/evacuees", (request, response) => {
 router.get("/familyNumber", verify, async (request, response) => {
 	try {
 		const familyNumber = await counterModel.find({ name: "familyNumber" });
-		console.log("familyNumber:", familyNumber);
 		response.status(200).json(familyNumber[0].count + 1); //Get key:value pair of json object
-
-		const evacueeNumber = await counterModel.find({ id: "evacueeNumber" });
-		console.log("evacueeNumber:", evacueeNumber[0].seq);
 	} catch (error) {
 		response.status(500).json({ error: error.message });
-		console.log(error);
 	}
 });
 
@@ -62,7 +57,6 @@ router.post("/", verify, checkRole(["admin"]), async (request, response) => {
 	//Find latest familyNumber
 
 	const latestFamilyNumber = await counterModel.find({ name: "familyNumber" });
-	console.log(latestFamilyNumber);
 	const familyNumber = latestFamilyNumber[0].count + 1;
 
 	const latestEvacuee = await evacueesModel
@@ -110,20 +104,17 @@ router.post("/", verify, checkRole(["admin"]), async (request, response) => {
 	const familyMembers = request.body.familyMember;
 	try {
 		if (error.length > 0) {
-			//console.log(error);
 			response.status(400).json(error);
 		} else {
 			// to declare some path to store your converted image
 			const path = `${__dirname}/../app_data/images/${imgName}`;
-			console.log(newEvacuee.image);
 			fs.writeFileSync(path, base64Data, { encoding: "base64" });
-			const evacuee = await newEvacuee.save();
+
 			if (familyMembers.length > 0) {
 				try {
 					const latestFamilyNumber = await counterModel.find({
 						name: "familyNumber",
 					});
-					console.log(latestFamilyNumber);
 					const familyNumber = latestFamilyNumber[0].count + 1;
 					//Add Family member
 					familyMembers.forEach((x) => {
@@ -153,23 +144,26 @@ router.post("/", verify, checkRole(["admin"]), async (request, response) => {
 						});
 						const member = membersModel.save();
 					});
-
-					//Update numbers of family in counters collection
-					//Find familyNumber in mongo collections
-					const famNumber = await counterModel.find({
-						name: "familyNumber",
-					});
-					const familyCount = famNumber[0].count;
-					const filter = { name: "familyNumber" };
-					//add count to familyNumber
-					const update = { count: familyCount + 1 };
-					await counterModel.updateOne(filter, update);
-					console.log("update:", update);
 				} catch (error) {
 					console.log("Error", error);
 				}
 			}
+
+			//Update numbers of family in counters collection
+			//Find familyNumber in mongo collections
+			/*const famNumber = await counterModel.find({
+				name: "familyNumber",
+			});
+			const familyCount = famNumber[0].count;*/
+			const filterCounterModel = { name: "familyNumber" };
+			//add count to familyNumber
+			const updateFamilyNumber = { count: familyNumber };
+
+			await counterModel.updateOne(filterCounterModel, updateFamilyNumber);
+			console.log("update:", updateFamilyNumber);
+			const evacuee = await newEvacuee.save();
 			response.status(200).json("success");
+			console.log("Success");
 		}
 	} catch (error) {
 		response.status(500).json({ error: error });
