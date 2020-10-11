@@ -393,7 +393,7 @@ function Evacuees() {
 	const [firstName, setFirstName] = useState("");
 	const [middleName, setMiddleName] = useState("");
 	const [lastName, setLastName] = useState("");
-	const [birthday, setBirthday] = useState("12/20/2020");
+	const [birthday, setBirthday] = useState(moment().format("MM/DD/yyyy"));
 	console.log(birthday);
 	const [gender, setGender] = useState("");
 	const [pregnant, setPregnant] = useState(false);
@@ -651,8 +651,6 @@ function Evacuees() {
 	};
 
 	const handleSave = () => {
-		setBirthday(moment().format("MM/DD/yyyy"));
-		console.log(birthday);
 		setBtnSaveLoading(true);
 		var token = sessionStorage.getItem("auth-token");
 		var userData = sessionStorage.getItem("userData");
@@ -1466,7 +1464,9 @@ function Evacuees() {
 														fullWidth
 														placeholder="MM/DD/YYYY"
 														value={birthday}
-														onChange={(e) => setBirthday(e)}
+														onChange={(e) =>
+															setBirthday(moment(e).format("MM/DD/yyyy"))
+														}
 														format="MM/dd/yyyy"
 														KeyboardButtonProps={{
 															"aria-label": "change date",
