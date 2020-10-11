@@ -289,7 +289,7 @@ const useStyles = makeStyles((theme) => ({
 		fontSize: 18,
 		fontWeight: "bold",
 		zIndex: 0,
-		// whiteSpace: 'nowrap',
+		whiteSpace: "nowrap",
 		"@media screen and (max-width: 768px)": {
 			fontSize: 11,
 		},
@@ -1110,11 +1110,17 @@ function Evacuees() {
 												)
 												.map((x) => (
 													<StyledTableRow key={x.id}>
-														<TableCell className={classes.tableCell}>
+														<TableCell
+															className={classes.tableCell}
+															style={{ textAlign: "center" }}
+														>
 															{x.familyNumber}
 														</TableCell>
 
-														<TableCell className={classes.tableCell}>
+														<TableCell
+															className={classes.tableCell}
+															style={{ textAlign: "center" }}
+														>
 															{x.evacueeNumber}
 														</TableCell>
 
