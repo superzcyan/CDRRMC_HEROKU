@@ -2201,7 +2201,9 @@ function Evacuees() {
 												label="Birth Date"
 												format="MM/dd/yyyy"
 												value={birthday}
-												onChange={(e) => setBirthday(e)}
+												onChange={(e) =>
+													setBirthday(moment(e).format("MM/DD/yyyy"))
+												}
 												KeyboardButtonProps={{
 													"aria-label": "change date",
 												}}

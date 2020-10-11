@@ -73,7 +73,7 @@ router.post("/", verify, checkRole(["admin"]), async (request, response) => {
 
 	//Compute age using birthday
 	const yearToday = new Date().getFullYear();
-	//Transform mongoose Date field to UTC using moment
+	//Transform mongoose Date field to MM-DD-yyyy using moment
 	const birthday = moment(request.body.birthday, "MM-DD-yyyy");
 	const birthYear = new Date(birthday).getFullYear();
 	const age = yearToday - birthYear;
