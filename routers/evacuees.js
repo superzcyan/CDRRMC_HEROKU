@@ -105,6 +105,7 @@ router.post("/", verify, checkRole(["admin"]), async (request, response) => {
 	try {
 		if (error.length > 0) {
 			response.status(400).json(error);
+			console.log(error);
 		} else {
 			// to declare some path to store your converted image
 			const path = `${__dirname}/../app_data/images/${imgName}`;
@@ -149,21 +150,13 @@ router.post("/", verify, checkRole(["admin"]), async (request, response) => {
 				}
 			}
 
-			//Update numbers of family in counters collection
-			//Find familyNumber in mongo collections
-			/*const famNumber = await counterModel.find({
-				name: "familyNumber",
-			});
-			const familyCount = famNumber[0].count;*/
 			const filterCounterModel = { name: "familyNumber" };
 			//add count to familyNumber
 			const updateFamilyNumber = { count: familyNumber };
-
 			await counterModel.updateOne(filterCounterModel, updateFamilyNumber);
-			console.log("update:", updateFamilyNumber);
-			const evacuee = await newEvacuee.save();
-			response.status(200).json("success");
-			console.log("Success");
+			//Save New Evacuee
+			await newEvacuee.save();
+			response.status(200).json("New Evacuee Successfully Added!");
 		}
 	} catch (error) {
 		response.status(500).json({ error: error });
